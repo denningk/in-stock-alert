@@ -22,8 +22,8 @@ const client = require('twilio')(accountSid, authToken);
         // If ticketsUnavailable is visible, wait 5 seconds and refresh
         if (await ticketsUnavailable.isVisible()) {
             console.log("Tickets unavailable, waiting 5 seconds...");
-        await new Promise(r => setTimeout(r, 5000));
-        await page.reload();
+            await new Promise(r => setTimeout(r, 5000));
+            await page.reload();
         } else {
             // ticketsUnavailable is not visible, tickets are available!
             throw new Error("Tickets available!");
