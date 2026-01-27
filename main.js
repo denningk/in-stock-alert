@@ -16,22 +16,22 @@ const client = require('twilio')(accountSid, authToken);
 
   try {
     while (true) {
-        // Grab the single day Saturday div or any other you want
-        const singleDay = page.locator('div[data-title="saturday single day pass"]');
+        // Check if ticketsUnavailable element is visible
+        const ticketsUnavailable = page.locator('text=ticketsUnavailable');
 
-        // When a ticket is sold out it has a grey background
-        // If it does not have a grey background then it is in stock and will stop the program
-        await expect(singleDay).toHaveCSS('background-color', 'rgb(241, 242, 242)');
-
-        // If still sold out, wait 5 seconds
+        // If ticketsUnavailable is visible, wait 5 seconds and refresh
+        if (await ticketsUnavailable.isVisible()) {
+            console.log("Tickets unavailable, waiting 5 seconds...");
         await new Promise(r => setTimeout(r, 5000));
-
-        // Refresh the page
         await page.reload();
+        } else {
+            // ticketsUnavailable is not visible, tickets are available!
+            throw new Error("Tickets available!");
+        }
     }
-  } catch {
+  } catch (error) {
     // The ticket is in stock!
-    console.log("Failed");
+    console.log("Tickets available!");
     const date = new Date().toLocaleString();
     console.log(date);
 
