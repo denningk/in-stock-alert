@@ -7,11 +7,12 @@ const client = require('twilio')(accountSid, authToken);
 
 (async () => {
   // Setup
-  const browser = await chromium.launch();
-  const context = await browser.newContext(devices['iPhone 11']);
+  const browser = await chromium.launch({ headless: false });
+  const context = await browser.newContext();
   const page = await context.newPage();
+  await page.goto('https://www.hauntednightsevents.com/event-details/winchester-mystery-house-3');
   
-  assert(await page.title() === 'Eventeny');
+  assert(await page.title() === 'Winchester Mystery House | Haunted Nights');
 
   try {
     while (true) {
