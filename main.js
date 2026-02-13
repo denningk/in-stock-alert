@@ -2,13 +2,42 @@ const assert = require('node:assert');
 const { chromium } = require('playwright');
 const nodemailer = require('nodemailer');
 const emailConfig = require('./email-config');
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+function askQuestion(query) {
+  return new Promise(resolve => rl.question(query, resolve));
+}
 
 (async () => {
+  // Ask user which day to track
+  console.log('Which day do you want to track?');
+  console.log('1 - winchester-mystery-house 5/15');
+  console.log('2 - winchester-mystery-house 5/16');
+  const dayChoice = await askQuestion('Enter 1 or 2: ');
+  
+  let url;
+  if (dayChoice.trim() === '1') {
+    url = 'https://www.hauntednightsevents.com/event-details/winchester-mystery-house-3';
+  } else if (dayChoice.trim() === '2') {
+    url = 'https://www.hauntednightsevents.com/event-details/winchester-mystery-house-4';
+  } else {
+    console.log('Invalid choice. Defaulting to option 1.');
+    url = 'https://www.hauntednightsevents.com/event-details/winchester-mystery-house-3';
+  }
+  
+  console.log(`Tracking: ${url}`);
+  rl.close();
+  
   // Setup
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
   const page = await context.newPage();
-  await page.goto('https://www.hauntednightsevents.com/event-details/winchester-mystery-house-3');
+  await page.goto(url);
   
   assert(await page.title() === 'Winchester Mystery House | Haunted Nights');
 
@@ -48,7 +77,7 @@ const emailConfig = require('./email-config');
       from: 'keithdenning1@gmail.com',
       to: 'keithdenning1@gmail.com',
       subject: 'Ticket Available!',
-      text: `${date}\n\nTicket is now in stock!\n\nhttps://www.hauntednightsevents.com/event-details/winchester-mystery-house-3`
+      text: `${date}\n\nTicket is now in stock!\n\n${url}`
   };
 
   // Send email
