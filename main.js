@@ -1,5 +1,7 @@
 const assert = require('node:assert');
 const { chromium } = require('playwright');
+const nodemailer = require('nodemailer');
+const emailConfig = require('./email-config');
 
 (async () => {
   // Setup
@@ -33,14 +35,30 @@ const { chromium } = require('playwright');
   const date = new Date().toLocaleString();
   console.log(date);
 
-  // Use twilio to text that a ticket is in stock
-  client.messages
-      .create({
-          body: `${date}\n Ticket!!\nhttps://www.hauntednightsevents.com/event-details/winchester-mystery-house-3`,
-          from: '[phone number here]',
-          to: '[your phone number here]'
-      })
-      .then(message => console.log(message.sid));
+  // Configure nodemailer to send email via Gmail
+  const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user: emailConfig.user,
+          pass: emailConfig.password
+      }
+  });
+
+  const mailOptions = {
+      from: 'keithdenning1@gmail.com',
+      to: 'keithdenning1@gmail.com',
+      subject: 'Ticket Available!',
+      text: `${date}\n\nTicket is now in stock!\n\nhttps://www.hauntednightsevents.com/event-details/winchester-mystery-house-3`
+  };
+
+  // Send email
+  transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+          console.log('Error sending email:', error);
+      } else {
+          console.log('Email sent: ' + info.response);
+      }
+  });
   
   // Teardown
   await context.close();
