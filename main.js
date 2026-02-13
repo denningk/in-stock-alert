@@ -68,14 +68,14 @@ function askQuestion(query) {
   const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-          user: emailConfig.user,
+          user: emailConfig.fromEmail,
           pass: emailConfig.password
       }
   });
 
   const mailOptions = {
-      from: 'keithdenning1@gmail.com',
-      to: 'keithdenning1@gmail.com',
+      from: emailConfig.fromEmail,
+      to: emailConfig.toEmail,
       subject: 'Ticket Available!',
       text: `${date}\n\nTicket is now in stock!\n\n${url}`
   };
